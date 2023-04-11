@@ -1,58 +1,95 @@
 use std::io;
-use std::io::Write;
 
-//use std::collections::HashMap;
-#[derive(Debug)]
+//#[derive(Debug)]
 struct ToDoEntry {
     item_title: String,
-    item_description: String
+    item_description: String,
 }
 
 fn main() {
     let mut items_list: Vec<ToDoEntry> = Vec::new();
+    loop {
+        menu_print();
 
-    menu_print();
-    let response = user_input();
+        //create a buffer to hold the input
+        let mut response = String::new();
+        //read from stdin
+        io::stdin()
+            .read_line(&mut response)
+            .expect("Failed to read line.");
 
-    // let (it, id) = add_item();
-    // println!("Title: {}", it);
-    // println!("Description: {}", id);
+        // match response.as_str().trim_end() {
+        //     "1" => add_item(&mut items_list),
+        //     "5" => println!("Exiting..."),
+        //     _ => println!("Coming Soon!"),
+        // };
+        //println!("{}", response);
 
-    match response.as_str().trim_end() {
-        "1" => add_item(&mut items_list),
-        "5" => println!("Exiting..."),
-        _ => println!("Coming Soon!"),
-    };
+        let response = response.trim();
 
-    for data in &items_list {
-        println!("{:#?}", data);
+        if response == "1" {
+            println!("Enter an item title.");
+            let mut title = String::new();
+            let _ = io::stdin().read_line(&mut title);
+
+            println!("Enter a description of the item.");
+            let mut description = String::new();
+            let _ = io::stdin().read_line(&mut description);
+
+            let item_entry = ToDoEntry {
+                item_title: title,
+                item_description: description,
+            };
+
+            items_list.push(item_entry);
+        } else if response == "2" {
+            for item in &items_list {
+                println!("title: {} desc: {}", item.item_title, item.item_description);
+            }
+        } else if response == "3" {
+            println!("Enter the item you want to display.");
+            let mut display_ind = String::new();
+            io::stdin()
+                .read_line(&mut display_ind)
+                .expect("Failed to read line.");
+
+            let test: usize = match display_ind.trim().parse() {
+                Ok(num) => num,
+                Err(_) => continue,
+            };
+            if let Some(_) = items_list.get(test) {
+                println!(
+                    "title: {} desc: {}",
+                    items_list[test].item_title, items_list[test].item_description
+                );
+            } else {
+                println!("Error");
+            }
+        } else if response == "4" {
+            println!("Enter the item you want to delete.");
+            let mut delete_ind = String::new();
+            io::stdin()
+                .read_line(&mut delete_ind)
+                .expect("Failed to read line.");
+
+            let test: usize = match delete_ind.trim().parse() {
+                Ok(num) => num,
+                Err(_) => continue,
+            };
+            if let Some(_) = items_list.get(test) {
+                items_list.remove(test);
+            } else {
+                println!("Error");
+            }
+        } else if response == "5" {
+            println!("Quitting...");
+            break;
+        } else {
+            println!("Make a valid choice.");
+            continue;
+        }
     }
-
-    //println!("{}", items_list[0]);
-
 }
-
-fn add_item(items_list: &mut Vec<ToDoEntry>) {
-    println!("Enter an item title.");
-    let title = user_input();
-
-    println!("Enter a description of the item.");
-    let description = user_input();
-
-    let item_entry = ToDoEntry {
-        item_title: title,
-        item_description: description
-    };
-
-    items_list.push(item_entry);
-
-}
-
-
-
-
-
-
 
 fn menu_print() {
     println!("Please make a selection:");
@@ -61,19 +98,4 @@ fn menu_print() {
     println!("3. Display an item.");
     println!("4. Delete an item.");
     println!("5. Exit.");
-}
-
-fn user_input() -> String{
-    //print pseudo prompt
-    print!("> ");
-    let _ = io::stdout().flush();
-
-    //create a buffer to hold the input
-    let mut input = String::new();
-
-    //read from stdin
-    let _= io::stdin().read_line(&mut input);
-
-    //print the input
-    return input;
 }
